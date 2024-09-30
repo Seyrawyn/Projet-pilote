@@ -1,0 +1,26 @@
+# Sert juste à optimiser le déploiement en réduisant la taille du contexte de build (et réduit les invalidations inutile de layer).
+# N'utilise pas la même syntaxe qu'un .gitignore.
+
+**/Dockerfile
+**/.dockerignore
+**/.git
+**/.gitignore
+**/.eslintignore
+**/.eslintrc.cjs
+**/.editorconfig
+**/README.md
+
+**/node_modules
+**/build
+
+**/.env
+**/.env.*
+
+/deployment
+
+/.hintrc
+/.gitlab-ci.yml
+/package-lock.json
+
+/misc
+/uml

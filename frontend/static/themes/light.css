@@ -1,0 +1,99 @@
+:root {
+    --primary: rgb(0, 123, 255); /* Primary blue */
+    --blue: hsl(212, 100%, 42%);
+    --blue-darker: hsl(212, 100%, 33%);
+    --danger: rgb(250, 58, 58);
+    --danger-button: hsl(0, 76%, 50%);
+    --danger-darker: hsl(0, 76%, 40%);
+    --success: #28A745;
+    --secondary-color: #C3B1E1; /* Secondary light purple */
+    --tertiary-color: #3A3A3C; /* Tertiary dark */
+    --accent-color: #E07A5F; /* Accent red-orange */
+    --secondary-accent-color: #FCE38A; /* Accent light pink */
+    --empty-color: #3A3A3C; /* Empty dark grey */
+  
+    
+    --info-color: #9EE09E;
+    --warning-color: #FFC107;
+    --white: #FFFFFF; /* White */
+    --black: #000000; /* Black */
+  
+    --bg-1: rgb(241, 241, 241);
+    --bg-2: rgb(224, 224, 224);
+    --bg-3: rgb(212, 212, 212);
+    --bg-info: rgb(127, 174, 255);
+    --bg-danger: rgb(241, 201, 201);
+  
+    --font-family: 'Montserrat', sans-serif;
+    --font-size-xxs: 10px;
+    --font-size-xs: 12px;
+    --font-size-sm: 14px;
+    --font-size-md: 16px;
+    --font-size-lg: 18px;
+    --font-size-xl: 20px;
+    --font-size-xxl: 22px;
+  
+    --padding-xxs: 5px;
+    --padding-xs: 8px;
+    --padding-sm: 10px;
+    --padding-md: 16px;
+    --padding-lg: 20px;
+    --padding-xl: 24px;
+  
+    --text: rgb(53, 53, 53);
+    --text-primary: var(--black);
+    --text-secondary: var(--tertiary-color);
+    --text-info: rgb(14, 48, 65);
+    --text-warning: var(--warning-color); 
+    --text-success: var(--success);
+    --text-active: var(--primary);
+    --text-button: rgb(232, 230, 227);
+    --text-button-secondary: var(--white);
+    --text-button-hover: var(--white);
+    --text-light: rgb(112, 112, 112);
+  
+    /* Backgrounds */
+    --bg-primary: var(--white);
+    --bg-secondary: var(--F7F7F7);
+    --bg-tertiary: var(--F9D8D2);
+  
+    /* Backgrounds buttons */
+    --bg-primary-button: color-mix(in srgb, var(--primary), #fff 30%);
+    --bg-secondary-button: var(--accent-color);
+    --bg-tertiary-button: var(--tertiary-color);
+    --bg-button-hover: color-mix(in srgb, var(--bg-primary-button), #000 15%);
+    --bg-empty-button: color-mix(in srgb, var(--empty-color), #fff 60%);
+  
+    /* Borders and shadows */
+    --border-color: var(--black);
+    --border: solid var(--border-color) 1px;
+    --shadow-sm: 0px 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0px 10px 15px rgba(0, 0, 0, 0.15);
+    
+    /* Links */
+    --link: var(--primary);
+    --link-hover: darken(var(--primary), 15%);
+  
+    --shroud: rgba(255, 255, 255, 0.5);
+  
+    /* Stats */
+    --bg-chart-running-color: color-mix(in srgb, var(--primary) 50%, transparent);
+    --border-chart-running-color: var(--primary);
+    --bg-chart-biking-color: color-mix(in srgb, var(--secondary-color) 50%, transparent);
+    --border-chart-biking-color: var(--secondary-color);
+    --bg-chart-walking-color: color-mix(in srgb, var(--accent-color) 50%, transparent);
+    --border-chart-walking-color: var(--accent-color);
+  
+    /* Container */
+    --container-max-width-sm: 100%;
+    --container-max-width-md: 80%;
+    --container-max-width-lg: 1000px;
+    --container-margin-sm: 10px;
+    --container-margin-md: 20px;
+    --container-margin-lg: 40px;
+    --container-padding-sm: var(--padding-sm);
+    --container-padding-md: var(--padding-md);
+    --container-padding-lg: var(--padding-lg);
+  }
+  

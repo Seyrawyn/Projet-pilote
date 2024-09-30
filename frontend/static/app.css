@@ -1,0 +1,189 @@
+:root {
+    --box-rounded: 0.5rem;
+  }
+  
+  blockquote,
+  body,
+  dd,
+  dl,
+  dt,
+  fieldset,
+  figure,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  hr,
+  html,
+  iframe,
+  legend,
+  li,
+  ol,
+  p,
+  pre,
+  textarea,
+  ul {
+    padding: 0;
+    margin: 0;
+  }
+  
+  html,
+  body {
+    height: 100%;
+  }
+  
+  @media (max-width: 576px) {
+  
+    html,
+    body {
+      overflow-x: hidden;
+    }
+  }
+  
+  body {
+    font-family: var(--font-family);
+    font-weight: 400;
+    color: var(--text-primary);
+    background-color: var(--bg-1);
+    overflow-x: hidden;
+  }
+  
+  a {
+    color: var(--link);
+    transition: 0.2s;
+  }
+  
+  a:hover {
+    color: var(--link-hover);
+  }
+  
+  ::placeholder {
+    color: var(--text-secondary);
+    opacity: 1;
+  }
+  
+  .danger {
+    color: var(--danger);
+  }
+  
+  .success {
+    color: var(--text-success);
+  }
+  
+  .primary {
+      color: var(--text-primary);
+  }
+  
+  /* Animations */
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+  
+    50% {
+      transform: scale(1.1);
+    }
+  
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes wiggle {
+    0% {
+      rotate: 0;
+      transform: translate(0, 0);
+    }
+  
+    25% {
+      transform: translate(10px, 0);
+    }
+  
+    50% {
+      transform: translate(-10px, 0);
+    }
+  
+    100% {}
+  }
+  
+  @keyframes horizontal-wiggle {
+    0% {
+      transform: translateX(0);
+    }
+  
+    25% {
+      transform: translateX(2px);
+    }
+  
+    75% {
+      transform: translateX(-2px);
+    }
+  
+    100% {
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes vertical-wiggle {
+    0% {
+      transform: translateY(0);
+    }
+  
+    25% {
+      transform: translateY(2px);
+    }
+  
+    75% {
+      transform: translateY(-2px);
+    }
+  
+    100% {
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes happy-dance {
+    0% {
+      transform: translate(0, 0);
+    }
+  
+    25% {
+      transform: translateX(10px);
+      rotate: 30deg;
+    }
+  
+    75% {
+      rotate: -30deg;
+      transform: translateX(-10px);
+    }
+  
+    100% {
+      rotate: 0;
+      transform: translate(0, 0);
+    }
+  }
+  
+  /** Je trouvais le nom amusant et je ne compte pas le changer. Merci.**/
+  @keyframes spin-me-righ-round-baby-right-round-like-a-record-baby {
+    0% {
+      rotate: 0;
+      transform: translate(0, 0);
+    }
+  
+    25% {
+      rotate: 0;
+      transform: translate(10px, 0);
+      rotate: 70deg;
+    }
+  
+    32% {
+      rotate: -30deg;
+    }
+  
+    100% {
+      rotate: -360deg;
+    }
+  }
+  

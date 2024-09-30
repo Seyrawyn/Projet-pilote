@@ -1,0 +1,169 @@
+image: node:20.11.0-alpine3.18
+
+stages:
+  - build
+  - test
+  - package
+  - deploy
+
+build_frontend:
+  stage: build
+  script:
+    - npm config set proxy null
+    - npm config set https-proxy null
+    - npm config set registry https://registry.npmjs.org/
+    - cd frontend
+    - npm ci
+
+build_backend:
+  stage: build
+  script:
+    - npm config set proxy null
+    - npm config set https-proxy null
+    - npm config set registry https://registry.npmjs.org/
+    - cd backend
+    - npm ci
+
+test_frontend:
+  stage: test
+  script:
+    - cd frontend
+    - npm ci
+    - npx vitest --run
+
+lint_frontend:
+  stage: test
+  script:
+    - cd frontend
+    - npm ci
+    - npm run lint
+
+test_integration_backend:
+  stage: test
+  coverage: /Statements\s+:\s(\d+.?\d+)%/
+  variables:
+    MYSQL_DATABASE: tse_db
+    MYSQL_ROOT_PASSWORD: your_root_password
+    MYSQL_USER: tse_user
+    MYSQL_PASSWORD: tse_tse
+    MYSQL_HOST: mysql
+
+  services:
+    - mysql
+
+  script:
+    - cd backend
+    - echo "DB_URL=mysql://$MYSQL_USER:$MYSQL_PASSWORD@$MYSQL_HOST/$MYSQL_DATABASE" > .env
+    - npm ci
+    - npm run generate
+    - npm run migrate
+    - npm run test
+
+  artifacts:
+    reports:
+      junit:
+        - backend/__tests__/junit.xml
+      coverage_report:
+          coverage_format: cobertura
+          path: backend/coverage/cobertura-coverage.xml
+
+.deploy_common:
+  before_script:
+    - VERSION="${CI_PIPELINE_ID}_${CI_COMMIT_SHORT_SHA}"
+
+# kaniko prevents running docker in docker. Equivalent of docker build + docker push
+# https://docs.gitlab.com/ee/ci/docker/using_kaniko.html
+package_frontend:
+  extends:
+    - .deploy_common
+  stage: package
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"},\"$CI_DEPENDENCY_PROXY_SERVER\":{\"auth\":\"$(printf "%s:%s" ${CI_DEPENDENCY_PROXY_USER} "${CI_DEPENDENCY_PROXY_PASSWORD}" | base64 | tr -d '\n')\"}}}" >/kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}/frontend"
+      --dockerfile "${CI_PROJECT_DIR}/frontend/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}/frontend:${VERSION}"
+      --destination "${CI_REGISTRY_IMAGE}/frontend:latest"
+  only:
+    - main
+
+# kaniko prevents running docker in docker. Equivalent of docker build + docker push
+# https://docs.gitlab.com/ee/ci/docker/using_kaniko.html
+package_backend:
+  extends:
+    - .deploy_common
+  stage: package
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  script:
+    - cd backend
+    - echo "PORT=5001" > .env
+    - echo "DB_URL=$SERVER_DB_URL" >> .env
+    - echo "SECRET=$SERVER_DB_SECRET" >> .env
+    - echo "ADMIN_NAME=$ADMIN_NAME" >> .env
+    - echo "ADMIN_PASSWORD=$ADMIN_PASSWORD" >> .env
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"},\"$CI_DEPENDENCY_PROXY_SERVER\":{\"auth\":\"$(printf "%s:%s" ${CI_DEPENDENCY_PROXY_USER} "${CI_DEPENDENCY_PROXY_PASSWORD}" | base64 | tr -d '\n')\"}}}" >/kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}/backend"
+      --dockerfile "${CI_PROJECT_DIR}/backend/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}/backend:${VERSION}"
+      --destination "${CI_REGISTRY_IMAGE}/backend:latest"
+  only:
+    - main
+
+# kaniko prevents running docker in docker. Equivalent of docker build + docker push
+# https://docs.gitlab.com/ee/ci/docker/using_kaniko.html
+package_reverse_proxy:
+  extends:
+    - .deploy_common
+  stage: package
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  script:
+    - cd deployment/nginx
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"},\"$CI_DEPENDENCY_PROXY_SERVER\":{\"auth\":\"$(printf "%s:%s" ${CI_DEPENDENCY_PROXY_USER} "${CI_DEPENDENCY_PROXY_PASSWORD}" | base64 | tr -d '\n')\"}}}" >/kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}/deployment/nginx"
+      --dockerfile "${CI_PROJECT_DIR}/deployment/nginx/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}/reverse_proxy:${VERSION}"
+      --destination "${CI_REGISTRY_IMAGE}/reverse_proxy:latest"
+  only:
+    - main
+
+
+deploy:
+  # Utiliser la même image de base que pour Node pour augmenter les chances d'avoir déjà celle-ci sur le runner GitLab.
+  image: debian:bullseye-slim
+  stage: deploy
+  before_script:
+    - "command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )"
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SSH_PRIVATE_KEY"
+    - ssh-add "$SSH_PRIVATE_KEY"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan $VM_IP_ADDRESS >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    
+
+  script:
+    - ssh $SSH_USER@$VM_IP_ADDRESS "pwd"
+    - |
+      ssh $SSH_USER@$VM_IP_ADDRESS 'cat >tse/.env' <<EOF
+      IMAGE_REPO=${CI_REGISTRY_IMAGE}
+      VERSION="${CI_PIPELINE_ID}_${CI_COMMIT_SHORT_SHA}"
+
+      EOF
+    - scp deployment/docker-compose.yml $SSH_USER@$VM_IP_ADDRESS:tse
+    - ssh $SSH_USER@$VM_IP_ADDRESS 'cd "tse" && docker compose up --detach --remove-orphans'
+  only:
+    - main
+

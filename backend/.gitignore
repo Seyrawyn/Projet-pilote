@@ -1,0 +1,13 @@
+node_modules
+coverage
+src/db/migrations/*
+test.restbook
+
+# dotenv environment variable
+.env
+dist/
+
+# test juint
+__tests__/junit.xml
+!/src/uploads/file-1710384923573.gpx
+src/uploads/*.gpx
